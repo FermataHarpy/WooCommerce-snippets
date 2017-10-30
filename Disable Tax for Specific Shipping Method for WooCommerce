@@ -1,0 +1,21 @@
+<?php
+
+/**
+ * Plugin Name: Disable Tax for Specific Shipping Method
+ * Description: Disables tax for WooCommerce based on shipping method
+ * Version: .1
+ * Author: Saralynn
+ */
+
+function zd_tax_exempt_international() {
+	global $woocommerce;
+	$chosen_method = WC()->session->get( 'chosen_shipping_methods' );
+	$chosen_shipping = $chosen_method[0];
+	if($chosen_shipping == 'local_pickup:39') {
+	WC()->customer->is_vat_exempt = true;
+	} else {
+		WC()->customer->is_vat_exempt = false;
+}
+}
+add_action('woocommerce_calculate_totals', 'zd_tax_exempt_international');
+?>
