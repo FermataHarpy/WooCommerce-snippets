@@ -1,0 +1,30 @@
+//change no shipping methods text based on shipping class
+
+add_filter( 'woocommerce_cart_no_shipping_available_html', 'change_noship_message', 10, 1 );
+add_filter( 'woocommerce_no_shipping_available_html', 'change_noship_message', 10, 1 );
+function change_noship_message( $default ) {
+    $minor_permit = 855; // Use Shipping Class ID
+	$major_permit = 854;
+	$no_international = 856;
+	$ammunition = 858;
+    $cart_shipping_classes = array();
+
+    foreach( WC()->cart->cart_contents as $key => $values )
+        $cart_shipping_classes[] = $values[ 'data' ]->get_shipping_class_id();
+ 
+    $cart_shipping_classes = array_unique( $cart_shipping_classes );
+ 
+    if( in_array( $minor_permit, $cart_shipping_classes )  )
+        return "An item in the cart requires a permit to ship internationally, if you have a permit please call +1 701 371 4444 to complete your order";
+ 
+    else if ( in_array( $major_permit, $cart_shipping_classes ) )
+        return "An item in the cart requires a permit to ship internationally, if you have a permit please call +1 701 371 4444 to complete your order";
+		
+	else if ( in_array( $no_international, $cart_shipping_classes ) )
+        return "We are sorry, but an item in your cart cannot be shipped internationally.  For more information call +1 701 371 4444 ";
+	else if ( in_array( $ammunition, $cart_shipping_classes ) )
+        return "We are sorry, but an item in your cart cannot be shipped to your location or requires other documentation.  For more information call +1 701 371 4444 ";
+
+	else
+	return $default;
+}
