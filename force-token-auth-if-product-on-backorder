@@ -1,0 +1,56 @@
+/*This code written on 18-4-3 by Saralynn Dobler (ZitchDog) and was tested...  I name this code Blue Dragon On Backorder */
+
+///forces token authorization if product in cart is on backorder ---ZITCHDOG
+add_filter( 'wc_authorize_net_cim_credit_card_payment_form_tokenization_forced', 'force_token_bo' );
+function force_token_bo ($valid, $product ){
+
+    $valid = false;
+
+    foreach ( WC()->cart->get_cart() as $cart_item ) {
+        // if($values['data']->backorders_allowed()){ //check if backorders are allowed on this product
+        // get the stock quantity - returns the available amount number
+        $stock_info = $cart_item['data']->get_stock_quantity();
+
+        if( $stock_info < 1 ){
+            $valid = true;
+            break;
+        } else {
+		$valid = false;
+		}
+    }
+    return $valid ;
+}
+
+//checkbox in checkout
+function cw_custom_checkbox_fields( $checkout ) {
+ foreach ( WC()->cart->get_cart() as $cart_item ) {
+        // if($values['data']->backorders_allowed()){ //check if backorders are allowed on this product
+        // get the stock quantity - returns the available amount number
+        $stock_info = $cart_item['data']->get_stock_quantity();
+
+        if( $stock_info < 1 ){
+    echo '<div class="cw_custom_class"><h3>'.__('<strong>Backorder Policy</strong> ').'</h3>';
+ 
+    woocommerce_form_field( 'custom_checkbox', array(
+        'type'          => 'checkbox',
+        'label'         => __('One or more items in your cart are on backorder. Backorder items will ship once they become available. Credit charges are not processed for backorder items until the time of shipment. By accepting the backorder policy, you are agreeing that BulletCentral.com will hold your credit card payment until time of shipment. '),
+        'required'  => true,
+    ), $checkout->get_value( 'custom_checkbox' ));
+ 
+    echo '</div>';
+} 
+		}
+ }
+
+add_action('woocommerce_after_order_notes', 'cw_custom_checkbox_fields');
+add_action('woocommerce_checkout_process', 'cw_custom_process_checkbox');
+ 
+function cw_custom_process_checkbox() {
+    global $woocommerce;
+
+    if (force_token_bo() && !isset($_POST['custom_checkbox'])) {
+        wc_add_notice( __( 'Please read the Backorder Policy(right side of page under notes)' ), 'error' );
+}
+}
+
+/*End of Blue Dragon on Backorder
