@@ -50,7 +50,7 @@ function cw_custom_process_checkbox() {
 
     if (force_token_bo() && !isset($_POST['custom_checkbox'])) {
         wc_add_notice( __( 'Please read the Backorder Policy(right side of page under notes)' ), 'error' );
-}
+} 
 }
 
 /*End of Blue Dragon on Backorder
