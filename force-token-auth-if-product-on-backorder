@@ -33,11 +33,12 @@ function cw_custom_checkbox_fields( $checkout ) {
  
     woocommerce_form_field( 'custom_checkbox', array(
         'type'          => 'checkbox',
-        'label'         => __('One or more items in your cart are on backorder. Backorder items will ship once they become available. Credit charges are not processed for backorder items until the time of shipment. By accepting the backorder policy, you are agreeing that BulletCentral.com will hold your credit card payment until time of shipment. '),
+        'label'         => __('By checking this box you are agreeing that BulletCentral.com will hold your credit card payment until time of shipment. '),
         'required'  => true,
     ), $checkout->get_value( 'custom_checkbox' ));
  
     echo '</div>';
+break;
 } 
 		}
  }
@@ -49,8 +50,8 @@ function cw_custom_process_checkbox() {
     global $woocommerce;
 
     if (force_token_bo() && !isset($_POST['custom_checkbox'])) {
-        wc_add_notice( __( 'Please read the Backorder Policy(right side of page under notes)' ), 'error' );
-} 
+        wc_add_notice( __( 'Please agree to cc payment hold. (right side of page under notes)' ), 'error' );
+}
 }
 
 /*End of Blue Dragon on Backorder
