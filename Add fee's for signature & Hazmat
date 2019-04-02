@@ -1,0 +1,63 @@
+add_action( 'woocommerce_cart_calculate_fees','custom_pcat_fee', 20, 1 );
+function custom_pcat_fee( $cart, $rates ) {
+    if ( is_admin() && ! defined( 'DOING_AJAX' ) && $rate->method_id !=='local_pickup:28' )
+        return;
+
+    // Set HERE your categories (can be term IDs, slugs or names) in a coma separated array
+    $categories = array('ammunition','actions');
+	$hazmat = array('hazardous');
+    $fee_amount = 0;
+	$cart_total = WC()->cart->get_cart_contents_total();
+	$adult = false;
+	$signature = false;	
+	$hazardous = false;
+	$pickup_method = 'local_pickup:28';
+	$chosen_methods = WC()->session->get( 'chosen_shipping_methods' );
+    $chosen_shipping = $chosen_methods[0];
+	
+
+    foreach( WC()->cart->get_cart() as $cart_item_key => $cart_item){			
+/*  Set requirements for signatures*/
+/*Ammunition in cart and local pick up is not the chosen shipping method*/
+			if(has_term( $categories, 'product_cat', $cart_item['product_id']) && $chosen_shipping !== $pickup_method ){
+				$adult = true;				
+			}
+			/* order over $800 and localpickup is not the chosen shipping method*/
+			if ($cart_total >= 800 && $chosen_shipping !== $pickup_method) {
+				$signature = true;	
+			}	
+			/*hazmat fee*/
+			if(has_term( $hazmat, 'product_cat', $cart_item['product_id']) && $chosen_shipping !== $pickup_method ){
+				$hazardous = true;				
+			}
+	}
+	/* Set fees: To change about change $fee_amount to the desired nuber*/
+	/*Order with Ammunition & is over $800.  To change about change $fee_amount to the desired nuber*/
+			if($adult && $signature) {
+				$fee_amount = 7;
+				 WC()->cart->add_fee( __( "Adult Signature", "woocommerce" ), $fee_amount, false );
+				
+				 // return $rates;
+			}
+		/*Order with Ammunition that is less than $800*/
+			if($adult && ! $signature) {
+				$fee_amount = 7;
+				WC()->cart->add_fee( __( "Adult Signature", "woocommerce" ), $fee_amount, false );
+				// unset( $rates['wf_shipping_ups:93'] );
+				// return $rates;
+			}
+		/*Order over $800 that does not contain ammunition*/	
+			if($signature && ! $adult) {
+				$fee_amount = 4;
+				WC()->cart->add_fee( __( "Signature", "woocommerce" ), $fee_amount, false );
+				// unset( $rates['wf_shipping_ups:93'] );
+				// return $rates;
+			} 
+			if($hazardous) {
+				$fee_amount = 35;	
+				WC()->cart->add_fee( __( "HAZMAT fee", "woocommerce" ), $fee_amount, false );
+				// unset( $rates['wf_shipping_ups:93'] );
+				// return $rates;
+
+			}
+}
